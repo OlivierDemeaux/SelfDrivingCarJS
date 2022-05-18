@@ -1,9 +1,10 @@
 class Car{
-    constructor(x,y,width,height, controlType, maxSpeed=3){
+    constructor(x,y,width,height, controlType, maxSpeed=3, color="red"){
         this.x = x;
         this.y = y;
         this.width = width;
         this.height = height;
+        this.color = color;
 
         this.speed = 0;
         this.acceleration = 0.3;
@@ -30,6 +31,7 @@ class Car{
             this.polygon = this.#createPolygon();
             this.damaged = this.#assessDamage(roadBorders, traffic);
         }
+        
         if(this.sensor){
             this.sensor.update(roadBorders, traffic);
             const offsets = this.sensor.readings.map(
