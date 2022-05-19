@@ -4,6 +4,8 @@ carCanvas.width = 200;
 const networkCanvas = document.getElementById("networkCanvas");
 networkCanvas.width = 500;
 
+const scoreBoard = document.getElementById("scoreBoard");
+
 const carCtx = carCanvas.getContext("2d");
 const networkCtx = networkCanvas.getContext("2d");
 
@@ -16,10 +18,13 @@ if (localStorage.getItem("bestBrain")) {
         cars[i].brain = JSON.parse(
             localStorage.getItem("bestBrain"));
         if (i != 0) {
-            NeuralNetwork.mutate(cars[i].brain, 0.1);
+            NeuralNetwork.mutate(cars[i].brain, 0.15);
         }
     }
 }
+
+let carsPassed = 0;
+let generation = localStorage.getItem("generation") ? Number(localStorage.getItem("generation")) + 1 : 0
 
 let traffic = [
     new Car(road.getLaneCenter(2), -700, 30, 50, "DUMMY", 2),
@@ -36,10 +41,12 @@ animate();
 function save() {
     localStorage.setItem("bestBrain",
         JSON.stringify(bestCar.brain));
+    localStorage.setItem("generation", generation);
 }
 
 function discard() {
     localStorage.removeItem("bestBrain");
+    localStorage.removeItem("generation")
 }
 
 function generateCars(N) {
@@ -63,11 +70,16 @@ function animate(time) {
         c => c.y == Math.min(
             ...cars.map(c => c.y)
         ));
+    
+    scoreBoard.innerHTML = "Score: " + Math.floor((- bestCar.y + 200) / 10 + carsPassed * 20) + "<br/>\n" + 
+                                "Car passed: " + carsPassed + "<br/>\n" +
+                                    "Generation: " + generation;
 
-    if(traffic[traffic.length - 1].y - 500 > bestCar.y){
+    if(traffic[traffic.length - 1].y - 300 > bestCar.y){
+        carsPassed++;
         traffic.pop();
-        console.log('here');
-        traffic.unshift(new Car(road.getLaneCenter(1), bestCar.y - 900, 30, 50, "DUMMY", 2));
+        const lane = Math.floor(Math.random() * 4);
+        traffic.unshift(new Car(road.getLaneCenter(lane), bestCar.y - 600, 30, 50, "DUMMY", 2));
         traffic[0].update(road.borders, []);
     }
 
